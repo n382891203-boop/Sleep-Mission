@@ -2,14 +2,14 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, ">
     <title>睡眠大作戰💤 - 桌遊互動版</title>
     <style>
         :root {
             --dream-purple: #a18cd1;
             --dream-pink: #fbc2eb;
             --accent-gold: #ffe066;
-            --success-blue: #007bff;
+            --success-blue: #007bff; /* 💡 已調成更明亮耀眼的螢光寶石藍 */
             --error-red: #e74c3c;
         }
 
@@ -31,7 +31,6 @@
             align-items: center;
             box-sizing: border-box;
             padding: 15px 10px;
-            position: relative;
         }
 
         .header {
@@ -46,7 +45,11 @@
             text-shadow: 0 0 10px rgba(161, 140, 209, 0.5);
         }
         .mode-selector { 
-            display: flex; justify-content: center; gap: 10px; margin-top: 5px; z-index: 20; 
+            display: flex; 
+            justify-content: center;
+            gap: 10px; 
+            margin-top: 5px; 
+            z-index: 20; 
         }
         .mode-btn {
             background: rgba(255, 255, 255, 0.1); 
@@ -61,19 +64,18 @@
         }
         .mode-btn.active { background: var(--dream-purple); box-shadow: 0 0 15px var(--dream-purple); }
 
-        .card-container { 
-            perspective: 1200px; 
+        .card-container {
+            perspective: 1200px;
             width: 100%;
-            max-width: 350px; 
-            height: calc(100vh - 150px); 
-            max-height: 530px; 
-            z-index: 10; 
-            position: relative; 
-            margin: auto; 
+            max-width: 350px;
+            height: calc(100vh - 150px);
+            max-height: 530px;
+            z-index: 10;
+            position: relative;
+            margin: auto;
         }
-        
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1.2); transform-style: preserve-3d; }
-        .is-flipped { transform: rotateY(360deg); }
+        .is-flipped { transform: rotateY(180deg); }
 
         .card-face {
             position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden;
@@ -91,7 +93,7 @@
             z-index: 2; 
         }
 
-        .card-front { background: transparent; transform: rotateY(0deg); z-index: 1; padding: 0; background-size: cover; background-position: center; } 
+        .card-front { background: transparent; transform: rotateY(180deg); z-index: 1; padding: 0; background-size: cover; background-position: center; }
 
         .card-front.quiz-mode-active {
             background-image: url('問題卡背景.png');
@@ -99,9 +101,9 @@
         }
 
         #feedbackMsg { 
-            font-size: clamp(1.2rem, 3.5vw, 1.8rem); 
-            font-weight: 900; 
-            margin-top: 15px; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            margin-top: 20px; 
             min-height: 1.5rem; 
             transition: 0.3s; 
             opacity: 0; 
@@ -109,24 +111,16 @@
             width: 100%;
             box-sizing: border-box;
             text-align: center; 
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8); 
         }
         
-        .options-container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            width: 85%; 
-            margin: 0 auto; 
-            position: relative; 
-            z-index: 6; 
-        }
+        .options-container { display: flex; flex-direction: column; gap: 10px; width: 85%; margin: 0 auto; position: relative; z-index: 6; }
         
         .opt-btn {
             background: rgba(255, 255, 255, 0.85); border: 2px solid rgba(0, 0, 0, 0.15);
-            color: #000000; padding: 14px 14px; border-radius: 14px; cursor: pointer; transition: 0.3s; font-size: 1.1rem; text-align: left;
+            color: #000000; padding: 14px 12px; border-radius: 14px; cursor: pointer; transition: 0.3s; font-size: 1.15rem; text-align: left;
             width: 100%; box-sizing: border-box; font-weight: bold;
         }
+        /* ✨ 已調整：答對時背景改為耀眼明亮藍，並加上雙層立體發光特效 */
         .opt-btn.correct-glow { 
             border-color: var(--success-blue) !important; 
             background: var(--success-blue) !important; 
@@ -136,11 +130,11 @@
         .opt-btn.wrong-select { background: var(--error-red) !important; border-color: var(--error-red) !important; opacity: 0.9; color: #fff !important; }
 
         .quiz-overlay { 
-            padding: 25px 20px; 
+            padding: 24px 20px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            justify-content: space-around; 
+            justify-content: center; 
             width: 100%; 
             height: 100%; 
             box-sizing: border-box; 
@@ -182,91 +176,73 @@
         .main-btn:active { transform: scale(0.95); }
         .main-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         
-        .quest-text { 
-            font-size: 1.4rem; 
-            line-height: 1.4; 
-            margin-bottom: 20px; 
-            text-align: center; 
-            font-weight: bold; 
-            cursor: pointer; 
+        .quest-text {
+            font-size: 1.5rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
             color: #000000;
             width: 100%;
         }
 
-        .info-modal {
-            position: fixed;
-            top: 0; left: 0; 
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            z-index: 100;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
-        .info-modal.show {
-            opacity: 1; pointer-events: auto;
-        }
-        .info-box {
-            background: #24243e;
-            border: 3px solid var(--accent-gold);
-            border-radius: 20px;
-            width: 85%; 
-            max-width: 460px; 
-            padding: 25px; 
-            box-sizing: border-box;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin: auto; 
-        }
-        .info-title {
-            font-size: 1.6rem; font-weight: bold; color: var(--accent-gold); margin-bottom: 15px;
-        }
-        .info-text {
-            font-size: 1.15rem; line-height: 1.6; color: #fff; margin-bottom: 20px; text-align: left;
-        }
-        .info-close-btn {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-            color: white; border: none; padding: 10px 30px; font-size: 1.1rem; font-weight: bold;
-            border-radius: 25px; cursor: pointer; transition: 0.2s;
-        }
-        .info-close-btn:active { transform: scale(0.95); }
-
-        .confetti {
-            position: absolute;
-            z-index: 99;
-            pointer-events: none;
+        .confetti { 
+            position: fixed; 
+            z-index: 1000; 
+            pointer-events: none; 
             border-radius: 2px;
         }
         @keyframes confetti-fall {
-            0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
-            30% { transform: translate3d(var(--x-spread), var(--y-up), 0) rotate(180deg); opacity: 1; }
-            100% { transform: translate3d(var(--x-final), calc(var(--y-up) * -3), 0) rotate(720deg); opacity: 0; }
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            25% { transform: translate(var(--x-spread), var(--y-up)) rotate(90deg); }
+            100% { transform: translate(var(--x-final), 100vh) rotate(720deg); opacity: 0; }
         }
 
-        /* 響應式優化（在此處調小了字體尺寸，避免平板環境超出界線） */
+        .info-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 26, 0.85); display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .info-modal.show { opacity: 1; pointer-events: auto; }
+        .info-box {
+            background: linear-gradient(135deg, #24243e, #1a1a2e);
+            border: 2px solid var(--dream-purple); box-shadow: 0 0 30px rgba(161, 140, 209, 0.4);
+            width: 85%; max-width: 340px; border-radius: 20px; padding: 25px; box-sizing: border-box;
+            text-align: center; transform: scale(0.8); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .info-modal.show .info-box { transform: scale(1); }
+        .info-title { font-size: 1.35rem; color: var(--accent-gold); font-weight: bold; margin-bottom: 14px; display: flex; justify-content: center; align-items: center; gap: 5px; }
+        .info-text { font-size: 1.1rem; line-height: 1.6; color: #fff; margin-bottom: 20px; text-align: justify; font-weight: 500; }
+        .info-close-btn {
+            background: linear-gradient(135deg, #a18cd1, #fbc2eb); border: none; color: #fff;
+            padding: 12px 35px; border-radius: 25px; font-weight: bold; font-size: 1.1rem; cursor: pointer; width: 100%;
+        }
+
         @media (min-width: 600px) {
             .card-container {
-                height: 70vh;
+                aspect-ratio: 875 / 1253;
                 width: min(100%, calc(70vh * 875 / 1253));
+                height: auto;
                 max-width: unset;
                 max-height: unset;
                 margin: auto;
             }
-            .options-container { max-width: 85%; margin: 0 auto; gap: 15px; } 
-            .quest-text { max-width: 90%; font-size: 1.6rem; margin-bottom: 20px; }
-            .opt-btn { font-size: 1.25rem; padding: 16px 16px; }
-            #feedbackMsg { font-size: 1.4rem; margin-top: 15px; } 
+            .options-container { max-width: 480px; margin: 0 auto; }
+            .quest-text { max-width: 480px; font-size: 2.5rem; }
+            .opt-btn { font-size: 1.9rem; }
             .event-overlay { padding: 0; }
         }
 
         @media (max-height: 650px) {
             .header h1 { font-size: 1.5rem; }
             .card-container { height: calc(100vh - 120px); }
-            .quiz-overlay { padding: 15px 20px; }
-            .quest-text { margin-bottom: 10px; }
-            .options-container { gap: 8px; }
+            .quest-text { font-size: 1.25rem; margin-bottom: 10px; line-height: 1.4; }
+            .opt-btn { padding: 10px 12px; font-size: 1rem; }
+            .main-btn { padding: 12px 45px; font-size: 1.1rem; }
+            .info-box { padding: 18px; }
+            .info-text { font-size: 0.95rem; margin-bottom: 14px; }
+            .event-info-btn { bottom: 8px; padding: 5px 14px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -317,12 +293,12 @@
             { text: "睡前做什麼活動較有助睡眠？", options: ["激烈運動", "放鬆伸展或聽音樂", "看刺激節目"], correct: 1, info: "睡前做太激烈的運動會讓心跳加快、體溫升高而更清醒。做些溫和的拉筋伸展、聽合弦音樂，最能放鬆大腦。" },
             { text: "夜間經常醒來可能與什麼有關？", options: ["正常且無需注意", "壓力或健康狀況", "一成是做夢"], correct: 1, info: "如果一個晚上頻繁醒來超過3次，可能跟心理壓力、身體疼痛、慢性病或睡眠呼吸中止症有關，不能大意喔。" },
             { text: "睡眠不足可能造成什麼影響？", options: ["精神不濟、容易疲倦", "變更有活力", "完全沒差"], correct: 0, info: "長期睡不飽延續白天沒精神、注意力無法集中，還會降低身體的免疫力，增加血壓不穩和慢性病的風險。" },
-            { text: "睡眠品質不好可能影響？", options: ["記憶力與情緒", "身高", "鞋子大小"], correct: 0, info: "睡不好的時候，大腦無法好好清理廢物，隔天容易健忘、心情繁躁。維持好睡眠是保護大腦與好心情的關鍵！" },
+            { text: "睡眠品質不好可能影響？", options: ["記憶力與情緒", "身高", "鞋子大小"], correct: 0, info: "睡不好的時候，大腦無法好好清理廢物，隔天容易健忘、心情煩躁。維持好睡眠是保護大腦與好心情的關鍵！" },
             { text: "臥室環境怎樣較適合睡眠？", options: ["明亮吵雜", "安靜、舒適、光線柔和", "電視開整晚"], correct: 1, info: "全黑或微弱夜燈、安靜不吵雜的臥室最理想。有些人習慣開著電視睡覺，其實電視的聲音與光線會一直在暗中干擾大腦。" },
             { text: "睡前抽菸或喝酒可能會？", options: ["幫助入睡", "影響睡眠品質", "沒影響"], correct: 1, info: "喝酒雖然會讓人昏昏睡睡，成酒精在體內代謝時會破壞深層睡眠，讓人下半夜容易驚醒、口渴，反而睡得更累！" },
             { text: "若長期失眠，建議怎麼做？", options: ["忍耐就好", "諮詢醫師或專業人員", "不睡決"], correct: 1, info: "失眠如果持續超過一個月，就不該一味忍耐或自己亂吃藥，建議到睡眠門診或高齡醫學科諮詢專家最安全。" },
             { text: "打呼嚴重且呼吸不順可能代表？", options: ["睡得很好", "睡眠呼吸中止風險", "正常現象"], correct: 1, info: "打呼功能如果大聲到一半會突然沒聲音、像斷氣一樣，很可能是睡眠呼吸中止症，會導致大腦缺氧，應盡早就醫檢查。" },
-            { text: "晚餐時間太晚可能會？", options: ["幫助入睡", "影響消化與睡眠", "沒影響"], correct: 1, info: "晚餐如果吃太晚或吃太飽，腸煙在睡眠時被迫加班蠕動消化，慢旦容易引發胃食道逆流，幕也會讓人睡得很不安穩。" },
+            { text: "晚餐時間太晚可能會？", options: ["幫助入睡", "影響消化與睡眠", "沒影響"], correct: 1, info: "晚餐如果吃太晚或吃太飽，腸煙在睡眠時被迫加班蠕動消化，不但容易引發胃食道逆流，也會讓人睡得很不安穩。" },
             { text: "白天長時間不活動可能會？", options: ["更好睡", "影響晚上的睡眠", "沒關係"], correct: 1, info: "如果白天整天躺著、坐著看電視不動，身體沒有消耗能量，到了晚上自然就不會有足夠的睡意，容易變成惡性循環。" },
             { text: "睡前情緒緊張或焦慮會？", options: ["更快入睡", "影響入睡", "幫助深睡"], correct: 1, info: "焦慮會激發身體的交感神經，讓血壓上升、心跳變快，身體進入防衛狀態。睡前想些開心的事，有助放鬆神經。" },
             { text: "良好的睡眠對長者重要性是？", options: ["維持健康與生活品質", "沒什麼幫助", "只是休息而已"], correct: 0, info: "優質的睡眠是長者對抗老化、維持好體力與好記憶力的天然補藥！睡得好，白天的生活才會充滿笑容與活力！" }
@@ -335,7 +311,7 @@
             { text: "先吸氣4秒，再憋氣7秒，最後吐氣8秒，將自己的一個失眠怪，給失眠怪最少的玩家，包括自己。", img: "數位卡V2-05.png", info: "這是著名的「4-7-8呼吸法」，能強迫身體調降心跳速度，啟動負責放鬆的副交感神經，是公認最強的天然安眠藥！" },
             { text: "固定睡眠、起床時間，建議入睡時間為晚間11點之前，再轉一次行動轉盤。", img: "數位卡V2-06.png", info: "每天在固定的時間上床與起床，能建立強大的生理時鐘。配合大腦在深夜十到十一點分泌褪黑激素的黃金期，睡眠品質最高！" },
             { text: "所有玩家點頭、仰頭、左彎、右彎各5秒鐘，完成後清空天平。", img: "數位卡V2-07.png", info: "放鬆頸部與肩膀是現代人失眠的關鍵。舒緩肩頸壓力可以改善大腦的血液灌流，讓交感神經平靜，大腦就會收到該睡覺的信號了。" },
-            { text: "所有玩家幫右手邊的玩家捶捶背，完成後清空天平。", img: "數位卡V2-08.png", info: "輕柔的會與按摩能促進大腦分泌「催產素」和「多巴胺」，這些幸福荷爾蒙能有效降低焦慮、安定心神，幫助深度睡眠。" },
+            { text: "所有玩家幫右手邊的玩家捶捶背，完成後清空天平。", img: "數位卡V2-08.png", info: "輕柔的搥背與按摩能促進大腦分泌「催產素」和「多巴胺」，這些幸福荷爾蒙能有效降低焦慮、安定心神，幫助深度睡眠。" },
             { text: "適度曬太陽能調整生理時鐘，改善睡眠. 將一個失眠怪放在紅區。", img: "數位卡V2-09.png", info: "白天曬太陽15至30分鐘，大腦會在14小時後，自動將這些光線轉化為高濃度的「褪黑激素」，讓您到了晚上，準時產生濃濃睡意！" },
             { text: "維持安靜、昏暗的睡眠環境，提升睡眠品質. 將一個失眠怪放在綠區。", img: "數位卡V2-10.png", info: "大腦的松果體非常怕光。全黑或只有微弱黃色夜燈的房間，能維持褪黑激素的穩定分泌，避免半夜輕易驚醒。" },
             { text: "晚餐適量，避免消化不良，影響睡眠. 將一個失眠怪放在黃區。", img: "數位卡V2-11.png", info: "晚餐吃七分飽最理想。若是吃太撐，腸胃在睡眠時被迫加班，血液集中在腹部，會讓大腦持續興奮，導致多夢、淺眠。" },
@@ -353,7 +329,7 @@
             { text: "睡前情緒激動、焦慮，影響睡眠，拿上家的一個失眠怪，放在紅區或藍區。", img: "數位卡V2-23.png", info: "躺在床上想事情、煩惱明天，會讓交感神經高昂。如果腦袋停不下來，試著把煩惱寫在紙上暫時「寄放」，能幫助大腦安心入睡。" },
             { text: "作息不規律，睡眠品質差，拿回天平上的一個失眠怪。", img: "數位卡V2-24.png", info: "今天早睡、明天熬夜，會徹底打亂身體的荷爾蒙分泌時鐘，久而久之就會變成慢性失眠。維持規律作息是健康長壽的第一步。" },
             { text: "睡前進行刺激的運動或活動，影響睡眠，下一回合暫停。", img: "數位卡V2-25.png", info: "睡前2小時內做激烈運動，會使體溫與心跳居高不下，大腦會誤以為還要繼續戰鬥。睡前應選擇溫和的拉筋，而非滿頭大汗的運動。" },
-            { text: "點擊左側問題挑戰卡，回答問題，答對可丟棄一個失眠怪，答錯無事發生。", img: "數位卡V2-26.png", info: "挑戰睡眠知識可以讓我們在生活中做出更好的選擇！預防失眠要從觀念開始，觀念對了，好睡眠自然天天來。" }
+            { text: "點擊左側問題挑戰卡，回答問題，答對可丟棄一個失眠怪，答錯無事發生。", img: "數位卡V2-26.png",info: "挑戰睡眠知識可以讓我們在生活中做出更好的選擇！預防失眠要從觀念開始，觀念對了，好睡眠自然天天來。" }
         ];
 
         let quizPool = [];
@@ -385,48 +361,35 @@
                 cardContent.classList.remove('quiz-mode-active');
             }
             
-            window.speechSynthesis && window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel(); 
             lastDrawnText = ""; 
             activeQuizInfo = ""; 
             closeInfoModal(); 
         }
 
         function speak(text, callback) {
-            if (!text || !window.speechSynthesis) {
+            if (!text) {
                 if (callback) callback();
                 return;
             }
-
+            
             let processedText = text.replace(/選項\s*A[、.]?/gi, "選項 ㄟ、")
                                     .replace(/\bA\b/g, "ㄟ")
                                     .replace(/答案：A/gi, "答案：ㄟ");
 
             const msg = new SpeechSynthesisUtterance(processedText);
-            msg.rate = 1.00;
-
-            const voices = window.speechSynthesis.getVoices();
-            const voice = voices.find(v => v.lang === 'zh-TW') ||
-                          voices.find(v => v.lang.startsWith('zh')) ||
-                          null;
-            if (voice) msg.voice = voice;
-            msg.lang = voice ? voice.lang : 'zh-TW';
+            msg.lang = 'zh-TW'; 
+            msg.rate = 1.00; 
 
             if (callback) {
-                let called = false;
-                const fallback = setTimeout(() => {
-                    if (!called) { called = true; callback(); }
-                }, Math.max(text.length * 150, 6000));
-                msg.onend = () => { if (!called) { called = true; clearTimeout(fallback); callback(); } };
-                msg.onerror = () => { if (!called) { called = true; clearTimeout(fallback); callback(); } };
+                msg.onend = () => { callback(); };
             }
-
-            if (window.speechSynthesis.paused) window.speechSynthesis.resume();
             window.speechSynthesis.speak(msg);
         }
 
         function replaySpeech() {
             if (lastDrawnText) {
-                window.speechSynthesis && window.speechSynthesis.cancel();
+                window.speechSynthesis.cancel();
                 speak(lastDrawnText);
             }
         }
@@ -440,12 +403,12 @@
 
         function closeInfoModal() {
             document.getElementById('infoModal').classList.remove('show');
-            window.speechSynthesis && window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel();
         }
 
         async function handleDraw() {
             if (isAnimating) return;
-            window.speechSynthesis && window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel(); 
             closeInfoModal();
 
             isAnimating = true;
@@ -464,7 +427,7 @@
                         speak(contentText); 
                         isAnimating = false; 
                         btn.disabled = false; 
-                    }, 500); 
+                    }, 400);
                 }, 400);
             } else {
                 const contentText = updateCardContent();
@@ -473,7 +436,7 @@
                     speak(contentText); 
                     isAnimating = false; 
                     btn.disabled = false; 
-                }, 500);
+                }, 800);
             }
         }
 
@@ -527,7 +490,7 @@
                 container.innerHTML = `
                 <div class="event-overlay">
                     <img src="${e.img}" class="event-image" alt="事件圖片" onclick="replaySpeech()">
-                    <button class="event-info-btn" onclick="window.speechSynthesis && window.speechSynthesis.cancel(); showInfoModal(activeQuizInfo)"><span>💡</span> 睡眠小百科💤</button>
+                    <button class="event-info-btn" onclick="window.speechSynthesis.cancel(); showInfoModal(activeQuizInfo)"><span>💡</span> 睡眠小百科💤</button>
                 </div>`;
             }
             
@@ -542,7 +505,7 @@
             
             btns.forEach(b => b.style.pointerEvents = 'none');
             msg.style.opacity = "1";
-            window.speechSynthesis && window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel();
 
             const correctLetter = String.fromCharCode(65 + correctIndex);
             msg.style.textAlign = "center"; 
