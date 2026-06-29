@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, ">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>睡眠大作戰💤 - 桌遊互動版</title>
     <style>
         :root {
@@ -219,11 +219,11 @@
             padding: 12px 35px; border-radius: 25px; font-weight: bold; font-size: 1.1rem; cursor: pointer; width: 100%;
         }
 
+        /* 響應式優化 */
         @media (min-width: 600px) {
             .card-container {
-                aspect-ratio: 875 / 1253;
+                height: 70vh;
                 width: min(100%, calc(70vh * 875 / 1253));
-                height: auto;
                 max-width: unset;
                 max-height: unset;
                 margin: auto;
@@ -275,11 +275,19 @@
         </div>
     </div>
 
+    <div id="tts-warning" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#c0392b; color:#fff; padding:12px 18px; border-radius:12px; font-size:0.95rem; text-align:center; z-index:9999; max-width:90%; line-height:1.5;">
+        ⚠️ 此裝置未安裝中文語音，無法朗讀內容<br>
+        <small>請至 設定 → 協助工具 → 文字轉語音 → 下載中文語音包</small>
+    </div>
+
     <script>
         let currentMode = 'media'; 
         let isAnimating = false;
         let lastDrawnText = ""; 
         let activeQuizInfo = ""; 
+        let nextEventData = null;
+        let nextQuizData = null;
+        let cachedVoices = [];
 
         const quizData = [
             { text: "年長者每天建議睡眠時間約為？", options: ["3～4小時", "5～7小時", "9～12小時"], correct: 1, info: "專家建議年長者每天睡5到7小時就足夠了。雖然睡眠時間變短，但只要白天精神好，就不需要太過擔心喔！" },
@@ -301,7 +309,7 @@
             { text: "晚餐時間太晚可能會？", options: ["幫助入睡", "影響消化與睡眠", "沒影響"], correct: 1, info: "晚餐如果吃太晚或吃太飽，腸煙在睡眠時被迫加班蠕動消化，不但容易引發胃食道逆流，也會讓人睡得很不安穩。" },
             { text: "白天長時間不活動可能會？", options: ["更好睡", "影響晚上的睡眠", "沒關係"], correct: 1, info: "如果白天整天躺著、坐著看電視不動，身體沒有消耗能量，到了晚上自然就不會有足夠的睡意，容易變成惡性循環。" },
             { text: "睡前情緒緊張或焦慮會？", options: ["更快入睡", "影響入睡", "幫助深睡"], correct: 1, info: "焦慮會激發身體的交感神經，讓血壓上升、心跳變快，身體進入防衛狀態。睡前想些開心的事，有助放鬆神經。" },
-            { text: "良好的睡眠對長者重要性是？", options: ["維持健康與生活品質", "沒什麼幫助", "只是休息而已"], correct: 0, info: "優質的睡眠是長者對抗老化、維持好體力與好記憶力的天然補藥！睡得好，白天的生活才會充滿笑容與活力！" }
+            { text: "良好的睡眠對長者重要性是？", options: ["維持健康與生活品質", "沒什麼幫助", "只是休息而已"], correct: 0, info: "優質的睡眠磁是長者對抗老化、維持好體力與好記憶力的天然補藥！睡得好，白天的生活才會充滿笑容與活力！" }
         ];
         const eventData = [
             { text: "大家丟骰子比大小，數字最大的玩家，將自己的一個失眠怪給任意一位玩家。", img: "數位卡V2-01.png", info: "與朋友一起玩桌遊、動動腦並開懷大笑，可以舒緩一整天的壓力。心情放鬆了，自律神經就會穩定，晚上自然更好睡喔！" },
@@ -329,22 +337,64 @@
             { text: "睡前情緒激動、焦慮，影響睡眠，拿上家的一個失眠怪，放在紅區或藍區。", img: "數位卡V2-23.png", info: "躺在床上想事情、煩惱明天，會讓交感神經高昂。如果腦袋停不下來，試著把煩惱寫在紙上暫時「寄放」，能幫助大腦安心入睡。" },
             { text: "作息不規律，睡眠品質差，拿回天平上的一個失眠怪。", img: "數位卡V2-24.png", info: "今天早睡、明天熬夜，會徹底打亂身體的荷爾蒙分泌時鐘，久而久之就會變成慢性失眠。維持規律作息是健康長壽的第一步。" },
             { text: "睡前進行刺激的運動或活動，影響睡眠，下一回合暫停。", img: "數位卡V2-25.png", info: "睡前2小時內做激烈運動，會使體溫與心跳居高不下，大腦會誤以為還要繼續戰鬥。睡前應選擇溫和的拉筋，而非滿頭大汗的運動。" },
-            { text: "點擊左側問題挑戰卡，回答問題，答對可丟棄一個失眠怪，答錯無事發生。", img: "數位卡V2-26.png",info: "挑戰睡眠知識可以讓我們在生活中做出更好的選擇！預防失眠要從觀念開始，觀念對了，好睡眠自然天天來。" }
+            { text: "點擊左側問題挑戰卡，回答問題，答對可丟棄一個失眠怪，答錯無事發生。", img: "數位卡V2-26.png", info: "挑戰睡眠知識可以讓我們在生活中做出更好的選擇！預防失眠要從觀念開始，觀念對了，好睡眠自然天天來。" }
         ];
 
         let quizPool = [];
         let eventPool = [];
 
         function initPool(type) {
+            // 💡 安全相容處理：不論傳入 'media' 或 'event' 皆能正確指定
             if (type === 'quiz') {
                 quizPool = Array.from({length: quizData.length}, (_, i) => i);
-            } else {
+            } else if (type === 'media' || type === 'event') {
                 eventPool = Array.from({length: eventData.length}, (_, i) => i);
             }
         }
 
+        // 初始化集
         initPool('quiz');
         initPool('media');
+
+        // 預載機制函數
+        function prepareNextQuiz() {
+            if (quizPool.length === 0) initPool('quiz');
+            const idx = Math.floor(Math.random() * quizPool.length);
+            nextQuizData = quizData[quizPool.splice(idx, 1)[0]];
+        }
+
+        function prepareNextEvent() {
+            if (eventPool.length === 0) initPool('media');
+            const idx = Math.floor(Math.random() * eventPool.length);
+            nextEventData = eventData[eventPool.splice(idx, 1)[0]];
+            const img = new Image();
+            img.src = nextEventData.img; // 提早讓瀏覽器下載快取圖片，翻牌絕不閃爍白屏
+        }
+
+        // 啟動時預先抽取下一抽
+        prepareNextQuiz();
+        prepareNextEvent();
+
+        // TTS 語音包動態檢查
+        if (window.speechSynthesis) {
+            cachedVoices = window.speechSynthesis.getVoices();
+            window.speechSynthesis.addEventListener('voiceschanged', () => {
+                cachedVoices = window.speechSynthesis.getVoices();
+                checkChineseVoice();
+            });
+            // voiceschanged 可能在某些瀏覽器上不觸發，設定一個 2 秒 Fallback 警示
+            setTimeout(checkChineseVoice, 2000);
+        }
+
+        function checkChineseVoice() {
+            if (checkChineseVoice.done) return;
+            checkChineseVoice.done = true;
+            const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+            if (!voices.some(v => v.lang.startsWith('zh'))) {
+                const banner = document.getElementById('tts-warning');
+                if (banner) banner.style.display = 'block';
+            }
+        }
 
         function setMode(mode) {
             if (isAnimating) return;
@@ -361,35 +411,50 @@
                 cardContent.classList.remove('quiz-mode-active');
             }
             
-            window.speechSynthesis.cancel(); 
+            window.speechSynthesis && window.speechSynthesis.cancel(); 
             lastDrawnText = ""; 
             activeQuizInfo = ""; 
             closeInfoModal(); 
         }
 
         function speak(text, callback) {
-            if (!text) {
+            if (!text || !window.speechSynthesis) {
                 if (callback) callback();
                 return;
             }
-            
+
             let processedText = text.replace(/選項\s*A[、.]?/gi, "選項 ㄟ、")
                                     .replace(/\bA\b/g, "ㄟ")
                                     .replace(/答案：A/gi, "答案：ㄟ");
 
             const msg = new SpeechSynthesisUtterance(processedText);
-            msg.lang = 'zh-TW'; 
             msg.rate = 1.00; 
 
+            const voices = window.speechSynthesis.getVoices();
+            const voice = voices.find(v => v.lang === 'zh-TW') ||
+                          voices.find(v => v.lang.startsWith('zh')) ||
+                          null;
+            if (voice) msg.voice = voice;
+            msg.lang = voice ? voice.lang : 'zh-TW';
+
             if (callback) {
-                msg.onend = () => { callback(); };
+                let called = false;
+                // 防止部分核心語音模組無回應的保險機制計時器
+                const fallback = setTimeout(() => {
+                    if (!called) { called = true; callback(); }
+                }, Math.max(text.length * 150, 6000));
+                
+                msg.onend = () => { if (!called) { called = true; clearTimeout(fallback); callback(); } };
+                msg.onerror = () => { if (!called) { called = true; clearTimeout(fallback); callback(); } };
             }
+
+            if (window.speechSynthesis.paused) window.speechSynthesis.resume();
             window.speechSynthesis.speak(msg);
         }
 
         function replaySpeech() {
             if (lastDrawnText) {
-                window.speechSynthesis.cancel();
+                window.speechSynthesis && window.speechSynthesis.cancel();
                 speak(lastDrawnText);
             }
         }
@@ -403,12 +468,12 @@
 
         function closeInfoModal() {
             document.getElementById('infoModal').classList.remove('show');
-            window.speechSynthesis.cancel();
+            window.speechSynthesis && window.speechSynthesis.cancel();
         }
 
         async function handleDraw() {
             if (isAnimating) return;
-            window.speechSynthesis.cancel(); 
+            window.speechSynthesis && window.speechSynthesis.cancel(); 
             closeInfoModal();
 
             isAnimating = true;
@@ -447,13 +512,15 @@
             if (currentMode === 'quiz') {
                 container.classList.add('quiz-mode-active');
 
-                if (quizPool.length === 0) {
-                    initPool('quiz');
-                }
+                // 讀取已經預載好的卡片數據，若為空（極端例外）則降級即時抽取
+                const q = nextQuizData || (() => {
+                    if (quizPool.length === 0) initPool('quiz');
+                    const idx = Math.floor(Math.random() * quizPool.length);
+                    return quizData[quizPool.splice(idx, 1)[0]];
+                })();
                 
-                const randomIndexInPool = Math.floor(Math.random() * quizPool.length);
-                const actualIndex = quizPool.splice(randomIndexInPool, 1)[0];
-                const q = quizData[actualIndex];
+                nextQuizData = null; // 清空
+                prepareNextQuiz();   // 提早預備下一抽
                 
                 textToRead = `${q.text}。選項 A、${q.options[0]}。選項 B、${q.options[1]}。選項 C、${q.options[2]}。`;
                 activeQuizInfo = q.info; 
@@ -476,13 +543,15 @@
             } else {
                 container.classList.remove('quiz-mode-active');
 
-                if (eventPool.length === 0) {
-                    initPool('media');
-                }
+                // 讀取已經預載好的事件數據
+                const e = nextEventData || (() => {
+                    if (eventPool.length === 0) initPool('media');
+                    const idx = Math.floor(Math.random() * eventPool.length);
+                    return eventData[eventPool.splice(idx, 1)[0]];
+                })();
                 
-                const randomIndexInPool = Math.floor(Math.random() * eventPool.length);
-                const actualIndex = eventPool.splice(randomIndexInPool, 1)[0];
-                const e = eventData[actualIndex];
+                nextEventData = null; // 清空
+                prepareNextEvent();   // 提早選定並載入下張事件卡圖片
                 
                 textToRead = e.text;
                 activeQuizInfo = e.info; 
@@ -505,7 +574,7 @@
             
             btns.forEach(b => b.style.pointerEvents = 'none');
             msg.style.opacity = "1";
-            window.speechSynthesis.cancel();
+            window.speechSynthesis && window.speechSynthesis.cancel();
 
             const correctLetter = String.fromCharCode(65 + correctIndex);
             msg.style.textAlign = "center"; 
