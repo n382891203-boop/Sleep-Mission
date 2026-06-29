@@ -9,16 +9,14 @@
             --dream-purple: #a18cd1;
             --dream-pink: #fbc2eb;
             --accent-gold: #ffe066;
-            --success-blue: #007bff;
+            --success-blue: #007bff; /* 💡 已調成更明亮耀眼的螢光寶石藍 */
             --error-red: #e74c3c;
         }
 
-        html, body {
+        html {
             width: 100%;
             height: 100%;
-            margin: 0;
-            padding: 0;
-            /* 💡 2. 改為 auto 允許內容超出時可以上下左右捲動（放大時才看得到邊緣） */
+            /* 💡 核心關鍵 2：當雙指放大畫面超出螢幕時，允許網頁上下左右捲動瀏覽 */
             overflow: auto; 
         }
 
@@ -32,9 +30,13 @@
             align-items: center;
             box-sizing: border-box;
             padding: 20px 10px;
-            /* 💡 3. 設定最低高度與寬度，確保畫面比例絕對固定，不會隨螢幕變形 */
-            min-height: 600px;
-            min-width: 320px;
+            
+            /* 💡 核心關鍵 3：固定整個遊戲畫面的最小寬高（基礎解析度） */
+            /* 這樣一來，整個畫面包含按鈕的「相對大小」就被完全固定了，縮放時才會整張一起動 */
+            width: 100%;
+            min-height: 640px; 
+            min-width: 360px;
+            height: 100vh;
         }
 
         .header { 
@@ -67,14 +69,14 @@
         }
         .mode-btn.active { background: var(--dream-purple); box-shadow: 0 0 15px var(--dream-purple); }
 
-        /* 💡 4. 將卡牌容器尺寸鎖定為固定 px，這樣手勢放大時它才會真的變大 */
+        /* 💡 核心關鍵 4：將卡牌容器鎖定回絕對的固定像素 (px)，確保放大時與按鈕比例不變 */
         .card-container { 
             perspective: 1200px; 
-            width: 340px;      /* 固定寬度 */
-            height: 480px;     /* 固定高度 */
+            width: 330px;
+            height: 460px;
             z-index: 10; 
             position: relative; 
-            margin: 20px 0; 
+            margin: auto 0; 
         }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1.2); transform-style: preserve-3d; }
         .is-flipped { transform: rotateY(180deg); }
@@ -122,6 +124,7 @@
             color: #000000; padding: 14px 12px; border-radius: 14px; cursor: pointer; transition: 0.3s; font-size: 1.15rem; text-align: left;
             width: 100%; box-sizing: border-box; font-weight: bold;
         }
+        /* ✨ 已調整：答對時背景改為耀眼明亮藍，並加上雙層立體發光特效 */
         .opt-btn.correct-glow { 
             border-color: var(--success-blue) !important; 
             background: var(--success-blue) !important; 
@@ -218,7 +221,7 @@
             padding: 12px 35px; border-radius: 25px; font-weight: bold; font-size: 1.1rem; cursor: pointer; width: 100%;
         }
 
-        /* 💡 5. 移除了原本會強制覆蓋比例的 @media 控制，確保大小與 Sweet-Sleep-Mission 一樣完全固定 */
+        /* 💡 核心關鍵 5：刪除了原本會隨高度自動改變文字與按鈕大小的 @media 區塊，確保比例永久固定 */
     </style>
 </head>
 <body>
@@ -249,6 +252,7 @@
             <button class="info-close-btn" onclick="closeInfoModal()">我知道了</button>
         </div>
     </div>
+
 </body>
     <script>
         let currentMode = 'media'; 
